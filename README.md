@@ -1,3 +1,3 @@
 # Extension de eminus para ver las tareas pendientes
 
-![image](https://github.com/user-attachments/assets/fe7f3523-9aac-4310-931f-28291b13c20e)
+![image](https://github.com/user-attachments/assets/a323d05d-9cbc-49e1-80ae-3dab707f5e3f)
