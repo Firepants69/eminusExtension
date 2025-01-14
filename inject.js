@@ -16,17 +16,13 @@ const getAsyncCourses = async (token) => {
         }
 
         const data = await response.json();
-        console.log('Datos obtenidos:', data);
 
-        // Filtra los cursos cuya fechaTermino es mayor a la fecha actual
+
         const newCourses = data.filter(course => new Date(course.curso.fechaTermino) > new Date());
-        console.log("Cursos filtrados:", newCourses);
 
-        // Retorna los cursos filtrados
         return newCourses;
     } catch (error) {
         console.error('Error al hacer la solicitud:', error);
-        // En caso de error, retorna un array vacío o maneja según lo necesites
     }
 };
 
@@ -45,9 +41,7 @@ const getActivitiesForCourseAsync = async (token, courseId) => {
         }
 
         const data = await response.json();
-        console.log("datos obtenidos", data);
         const newActivities = data.filter(activity => new Date(activity?.fechaTermino) > new Date());
-        console.log("hola", newActivities);
         return newActivities;
     } catch (error) {
         console.log(error)
@@ -59,26 +53,24 @@ const getAllActivies = async (token) => {
     let activities = []
     for (const course of courses) {
         const courseActivie = await getActivitiesForCourseAsync(token, course?.curso?.idCurso);
-        console.log("actividades: ", courseActivie)
 
         const newCouserActivie = courseActivie.map(activity => ({ ...activity, course_title: course?.curso?.nombre }))
 
         activities.push(...newCouserActivie);
-        console.log(activities);
     }
     return activities
 }
 
 
-// Ahora, puedes agregar el `element` al div de destino
+// select the div 
 var divs = document.getElementsByClassName('container_courses w-100 mt-2 border-top');
 if (divs.length > 0) {
     var favs = divs[0];
 
-    // Crear un nuevo div
+    // create a new element to show activities
     var principalDiv = document.createElement('div');
 
-    // Crear un elemento de estilo (style) y agregar las reglas CSS
+    // styles used
     const style = document.createElement('style');
     style.innerHTML = `
         .principal {
@@ -117,16 +109,16 @@ if (divs.length > 0) {
         }
         @keyframes l3 {to{transform: rotate(1turn)}}
     `;
-    // Añadir el estilo al head del documento
+    // add style to head
     document.head.appendChild(style);
 
-    // Aplicar la clase al nuevo div
+    // use classes
     principalDiv.classList.add('principal');
 
     const title = document.createElement('span')
     title.textContent = "Tareas pendientes"
     title.style.fontSize = "1.42857rem";
-    title.style.paddingLeft = "15px";
+    title.style.paddingLeft = "8px";
     title.style.fontWeight = "bold";
     title.style.marginBottom = "15px"
 
@@ -144,28 +136,36 @@ if (divs.length > 0) {
     const token = localStorage.getItem('accessToken');
     console.log("Token:", token);
     getAllActivies(token).then((data) => {
-        loadingDiv.remove();
+        if (data.length === 0) {
+            const noData = document.createElement('span');
+            noData.textContent = "Estás al día";
+            noData.style.color = "rgb(164, 164, 164)"
+            loading.remove();
+            loadingDiv.appendChild(noData);
+        } else {
+            loadingDiv.remove();
+        }
         data.forEach(activity => {
-            // Crear un nuevo div para cada actividad
+            // div container each activitie
             const activityDiv = document.createElement('div');
             activityDiv.className = "CourseList col-12 d-flex p-3 mb-3 mat-card ng-star-inserted";
             activityDiv.style.borderRadius = "10px"
             const infoDiv = document.createElement('div')
             infoDiv.className = "d-flex flex-column"
-            const fechaEstatus = new Date(activity.fechaEstatus); // Convertir la fecha de estatus
+            const dateEstatus = new Date(activity.fechaEstatus); // to str
             const maxDate = new Date(activity?.fechaTermino)
-            const maxDateStr = maxDate.toLocaleString();
-            const fechaEstatusStr = fechaEstatus.toLocaleString(); // Convertir a formato de cadena
+            const maxDateStr = maxDate.toLocaleString(); // to str
+            const dateEstatusStr = dateEstatus.toLocaleString(); // to str
 
-            // Crear el contenido del div con la fecha y el título
+            // Create the div content
             infoDiv.innerHTML = `
             <p><strong>Curso:</strong> ${activity.course_title}</p>
             <p><strong>Título:</strong> ${activity.titulo}</p>
-            <p><strong>Fecha de Creación:</strong> ${fechaEstatusStr}</p>
+            <p><strong>Fecha de Creación:</strong> ${dateEstatusStr}</p>
             <p><strong>Fecha de Máxima:</strong> ${maxDateStr}</p>
             `;
 
-            // Añadir el nuevo div al contenedor
+
             activityDiv.appendChild(infoDiv)
             principalDiv.appendChild(activityDiv);
         });
@@ -173,7 +173,7 @@ if (divs.length > 0) {
 
     favs.insertBefore(principalDiv, favs.firstChild);
 } else {
-    console.log('No se encontraron elementos con la clase especificada');
+    console.log('No elements with this class');
 }
 
 
