@@ -134,7 +134,6 @@ if (divs.length > 0) {
     loadingDiv.appendChild(loading)
 
     const token = localStorage.getItem('accessToken');
-    console.log("Token:", token);
     getAllActivies(token).then((data) => {
         if (data.length === 0) {
             const noData = document.createElement('span');
