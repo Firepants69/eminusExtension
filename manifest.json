@@ -1,18 +1,19 @@
 {
-    "name": "inject",
-    "version": "1.0",
     "manifest_version": 3,
+    "name": "eminus_extension",
+    "description": "Obtiene tareas pendientes de eminus",
+    "version": "1.0",
+    "background": {
+        "service_worker": "background.js"
+    },
     "content_scripts": [
         {
-            "matches": [
-                "https://eminus.uv.mx/eminus4/page/course/list"
-            ],
             "js": [
                 "inject.js"
+            ],
+            "matches": [
+                "https://eminus.uv.mx/eminus4/*"
             ]
         }
-    ],
-    "host_permissions": [
-        "https://eminus.uv.mx/eminus4/page/course/list"
     ]
 }
