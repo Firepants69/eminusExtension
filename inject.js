@@ -16,7 +16,7 @@ const getAsyncCourses = async (token) => {
         }
 
         const data = await response.json();
-
+        console.log(data);
 
         const newCourses = data.filter(course => new Date(course.curso.fechaTermino) > new Date());
 
@@ -39,27 +39,32 @@ const getActivitiesForCourseAsync = async (token, courseId) => {
         if (!response.ok) {
             throw new Error('Error al obtener las actividades');
         }
-
         const data = await response.json();
+        console.log(data);
         const newActivities = data.filter(activity => new Date(activity?.fechaTermino) > new Date());
         return newActivities;
     } catch (error) {
         console.log(error)
+        return [];
     }
 }
 
 const getAllActivies = async (token) => {
-    const courses = await getAsyncCourses(token);
-    let activities = []
-    for (const course of courses) {
-        const courseActivie = await getActivitiesForCourseAsync(token, course?.curso?.idCurso);
+    try {
+        const courses = await getAsyncCourses(token);
+        let activities = []
+        for (const course of courses) {
+            const courseActivie = await getActivitiesForCourseAsync(token, course?.curso?.idCurso);
 
-        const newCouserActivie = courseActivie.map(activity => ({ ...activity, course_title: course?.curso?.nombre }))
+            const newCouserActivie = courseActivie.map(activity => ({ ...activity, course_title: course?.curso?.nombre }))
 
-        activities.push(...newCouserActivie);
+            activities.push(...newCouserActivie);
+        }
+        console.log(activities);
+        return activities;
+    } catch {
+        return [];
     }
-    console.log(activities);
-    return activities;
 }
 
 const onClickActivity = (courseId, activityId) => {
@@ -201,7 +206,7 @@ const onClickActivity = (courseId, activityId) => {
 
             }
             data.forEach(activity => {
-                // div container each activitie
+                // div container each activity
                 const activityDiv = document.createElement('div');
                 activityDiv.className = "CourseList col-12 d-flex p-3 mb-3 mat-card ng-star-inserted";
                 activityDiv.style.borderRadius = "10px"
@@ -220,7 +225,8 @@ const onClickActivity = (courseId, activityId) => {
                 titleActivity.style.cursor = "pointer";
                 titleActivity.classList.add('title-activity');
 
-                titleActivity.addEventListener('click', () => onClickActivity(activity?.idCurso, activity?.idActividad));
+                titleActivity.addEventListener('click', () =>
+                    onClickActivity(activity?.idCurso, activity?.idActividad));
 
                 infoDiv.innerHTML = `
                 <p><strong>Curso:</strong> ${activity.course_title}</p>
@@ -243,5 +249,3 @@ const onClickActivity = (courseId, activityId) => {
     }
 })();
 
-//curso 69956
-//actividad 469873
