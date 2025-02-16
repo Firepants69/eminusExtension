@@ -139,7 +139,15 @@ const onClickActivity = (courseId, activityId) => {
                 color: black;
             }
             .title-activity:hover {
-                color: #706f93;
+                color: #575656;
+            }
+
+            .title-activity-alert{
+               
+                color: red;
+            }
+            .title-activity-alert:hover {
+                color:#EE6666;
             }
 
             .loader {
@@ -205,7 +213,14 @@ const onClickActivity = (courseId, activityId) => {
                 principalDiv.appendChild(activitiesDiv);
 
             }
-            data.forEach(activity => {
+            const pendingactivities = [
+                ...data
+                    .filter(info => !info.estadoEntrega)
+                    .sort((a, b) => new Date(a.fechaTermino) - new Date(b.fechaTermino))
+                , ...data.filter(info => info.estadoEntrega == 1)
+            ]
+
+            pendingactivities.forEach(activity => {
                 // div container each activity
                 const activityDiv = document.createElement('div');
                 activityDiv.className = "CourseList col-12 d-flex p-3 mb-3 mat-card ng-star-inserted";
@@ -223,13 +238,26 @@ const onClickActivity = (courseId, activityId) => {
                 titleActivity.style.fontWeight = "bold";
                 titleActivity.style.fontSize = "1.45rem";
                 titleActivity.style.cursor = "pointer";
-                titleActivity.classList.add('title-activity');
+
+                const oneDay = 24 * 60 * 60 * 1000;
+                let difDays = Math.round(Math.abs((maxDate - new Date()) / oneDay));
+                console.log(difDays);
+
+                //alert 
+                difDays <= 2 ? titleActivity.classList.add('title-activity-alert') : titleActivity.classList.add('title-activity');
 
                 titleActivity.addEventListener('click', () =>
                     onClickActivity(activity?.idCurso, activity?.idActividad));
 
                 infoDiv.innerHTML = `
+                <p><strong>Días para que termine:</strong> ${difDays}</p>
                 <p><strong>Curso:</strong> ${activity.course_title}</p>
+                ${activity.estadoEntrega ?
+                        `<p><strong style="margin-right: 10px;">Con entrega</strong><span style="color:green; font-weight: 900;">&#10004;</span></p>`
+                        :
+                        `<p><strong style="margin-right: 10px;">Sin entrega</strong><span style="color:red; font-weight: 900;">x</span></p>`
+                    }
+                  
                 <p><strong>Fecha de Creación:</strong> ${dateEstatusStr}</p>
                 <p><strong>Fecha de Máxima:</strong> ${maxDateStr}</p>
                 <p><strong>Descripcion:</strong> </p>
