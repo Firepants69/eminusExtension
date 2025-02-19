@@ -105,7 +105,7 @@ const onClickActivity = (courseId, activityId) => {
 
 
 // select the div 
-(() => {
+const main = () => {
     var divs = document.getElementsByClassName('container_courses w-100 mt-2 border-top');
     if (divs.length > 0) {
         var favs = divs[0];
@@ -275,5 +275,11 @@ const onClickActivity = (courseId, activityId) => {
     } else {
         console.log('No elements with this class');
     }
-})();
+};
 
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "urlChange") {
+        console.log("La URL ha cambiado, realizando acción en la página...");
+        main()
+    }
+});
