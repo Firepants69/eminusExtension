@@ -1,4 +1,8 @@
-// No es necesario declarar `element` dos veces, ya está al principio
+var info = {
+    activities: [],
+    forums: [],
+    exams: [],
+};
 
 const getAsyncCourses = async (token) => {
     const url = 'https://eminus.uv.mx/eminusapi/api/Cursos/getAllCourses';
@@ -19,6 +23,8 @@ const getAsyncCourses = async (token) => {
         console.log(data);
 
         const newCourses = data.filter(course => new Date(course.curso.fechaTermino) > new Date());
+
+        info.courses = newCourses;
 
         return newCourses;
     } catch (error) {
@@ -49,9 +55,56 @@ const getActivitiesForCourseAsync = async (token, courseId) => {
     }
 }
 
+
+const getForumsForCourseAsync = async (token, courseId) => {
+    const url = `/eminusapi/api/Foro/getForos/${courseId}/0`
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+
+        if (!response.ok) {
+            throw new Error('Error al obtener las actividades');
+        }
+        const data = await response.json();
+        console.log("foros: ", data);
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const getExamsForCourseAsync = async (token, courseId) => {
+    const url = `/eminusapi/api/Examen/getExamenesEst/${courseId}`
+    try {
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+
+        if (!response.ok) {
+            throw new Error('Error al obtener las actividades');
+        }
+        const data = await response.json();
+        console.log("foros: ", data);
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 const getAllActivies = async (token) => {
     try {
-        const courses = await getAsyncCourses(token);
+        var courses;
+
+        if (info.courses != undefined) {
+            courses = info.courses
+        } else {
+            courses = await getAsyncCourses(token);
+        }
         let activities = []
         for (const course of courses) {
             const courseActivie = await getActivitiesForCourseAsync(token, course?.curso?.idCurso);
@@ -60,7 +113,9 @@ const getAllActivies = async (token) => {
 
             activities.push(...newCouserActivie);
         }
-        console.log(activities);
+
+        info.activities.push(...activities);
+        console.log("actividades", info.activities)
         return activities;
     } catch {
         return [];
@@ -112,7 +167,13 @@ const main = () => {
 
         // create a new element to show activities
         var principalDiv = document.createElement('div');
+        principalDiv.id = "principalId";
 
+        if (document.getElementById("principalId") != null) {
+
+            return;
+
+        }
         // styles used
         const style = document.createElement('style');
         style.innerHTML = `
@@ -170,7 +231,8 @@ const main = () => {
         // add style to head
         document.head.appendChild(style);
 
-        // use classes
+
+
         principalDiv.classList.add('principal');
         principalDiv.style.marginBottom = "20px"
         const title = document.createElement('span')
@@ -192,6 +254,8 @@ const main = () => {
         loadingDiv.appendChild(loading)
 
         const token = localStorage.getItem('accessToken');
+        getForumsForCourseAsync(token, 76446);
+        getExamsForCourseAsync(token, 76446);
         getAllActivies(token).then((data) => {
             const activitiesDiv = document.createElement('div');
             if (data.length === 0) {
@@ -283,3 +347,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         main()
     }
 });
+
