@@ -605,6 +605,39 @@ const showActivities = (token, principalDiv) => {
 
 }
 
+const forumfilter=(collection,id) =>{
+    const selector = `
+    <div class="form-group">
+        <label for="${id}" class="mt-3">Materias seleccionadas</label>
+        <select multiple class="form-control" id="${id}">
+            ${collection.join("")}
+        </select>
+    </div>
+`;
+    return selector;
+} 
+
+const onFilterActivities = (activitiesFilterHTML) => {
+
+    const seletedItems = Array.from(activitiesFilterHTML.selectedOptions).map(item => item.value);
+    
+    const matchingElements = Array.from(document.querySelectorAll('[id]')).filter(el =>
+        el.id.includes('activitydiv')
+    );
+
+    matchingElements.forEach(item => {
+        const courseData = item.getAttribute('data-course');
+
+        if (!seletedItems.includes(courseData)) {
+            console.log("id", item.id);
+            item.className = 'CourseList d-none p-3 mb-3 mat-card';
+        } else {
+            item.className = 'CourseList d-flex p-3 mb-3 mat-card';
+        }
+
+    })
+}
+
 const forums = (pendingActivities, pendingforums, pendingExams, token, principalDiv) => {
     console.log("hola desde foros");
     if (info.forums == undefined) {
@@ -636,7 +669,28 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
 
         }
 
-        data.forEach(forum => {
+        let coincidence = info.forums.map(act => act?.nombre_curso);
+
+        let coursesName = [...new Set(coincidence)];
+
+        coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
+
+        const selector = forumfilter(coursesName,"filtro-foros");
+
+        const courseSelector = document.createElement('div');
+        courseSelector.id = "filtros-actividades";
+
+        courseSelector.innerHTML = selector;
+
+        content.appendChild(courseSelector);
+        const activitiesFilterHTML = document.getElementById('filtro-foros');
+
+
+        activitiesFilterHTML.addEventListener("change",()=>{
+            onFilterActivities(activitiesFilterHTML);
+        });   
+
+        data.forEach((forum,index) => {
             // div container each activity
             const activityDiv = document.createElement('div');
             activityDiv.className = "CourseList d-flex p-3 mb-3 mat-card ";
@@ -672,7 +726,8 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
                 
                 ${forum?.descripcion}
                 `;
-
+            activityDiv.id = `activitydiv${index}`;
+            activityDiv.setAttribute("data-course",forum.nombre_curso);
             infoDiv.insertBefore(titleForum, infoDiv.firstChild);
             activityDiv.appendChild(infoDiv)
             content.appendChild(activityDiv);
@@ -712,7 +767,27 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
 
         }
 
-        data.forEach(exam => {
+        let coincidence = info.exams.map(act => act?.nombre_curso);
+
+        let coursesName = [...new Set(coincidence)];
+
+        coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
+
+        const selector = forumfilter(coursesName,"filtro-examenes");
+
+        const courseSelector = document.createElement('div');
+        courseSelector.id = "filtros-examenes";
+
+        courseSelector.innerHTML = selector;
+
+        content.appendChild(courseSelector);
+        const activitiesFilterHTML = document.getElementById('filtro-examenes');
+
+        activitiesFilterHTML.addEventListener("change",()=>{
+            onFilterActivities(activitiesFilterHTML);
+        });
+
+        data.forEach((exam,index) => {
             // div container each activity
             const activityDiv = document.createElement('div');
             activityDiv.className = "CourseList d-flex p-3 mb-3 mat-card ";
@@ -751,6 +826,8 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
                 </p>
                 `;
 
+            activityDiv.id = `activitydiv${index}`;
+            activityDiv.setAttribute("data-course",exam.nombre_curso);
             infoDiv.insertBefore(titleExam, infoDiv.firstChild);
             activityDiv.appendChild(infoDiv);
 
