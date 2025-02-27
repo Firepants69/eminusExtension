@@ -121,8 +121,8 @@ const getForumsForCourseAsync = async (token, courseId) => {
             throw new Error('Error al obtener las actividades');
         }
         const data = await response.json();
-
-        return data;
+        const newForums = data.filter(activity => new Date(activity?.fechaTermino) > new Date());
+        return newForums;
 
     } catch (error) {
         return [];
@@ -143,7 +143,8 @@ const getExamsForCourseAsync = async (token, courseId) => {
             throw new Error('Error al obtener las actividades');
         }
         const data = await response.json();
-        return data;
+        const newExams = data.filter(activity => new Date(activity?.fechaTermino) > new Date());
+        return newExams;
     } catch (error) {
         return [];
     }
@@ -213,7 +214,7 @@ const allForumsAsync = async (token) => {
 
             info.forums = forums;
 
-            return forums;
+            return forums.sort((a, b) => new Date(a.fechaTermino) - new Date(b.fechaTermino));
         }
     } catch {
         return [];
@@ -245,7 +246,7 @@ const allExamsAsync = async (token) => {
 
         info.exams = exams;
 
-        return exams;
+        return exams.sort((a, b) => new Date(a.fechaTermino) - new Date(b.fechaTermino));
     } catch {
         return [];
     }
@@ -433,6 +434,10 @@ const init = (principalDiv, favs) => {
 
 };
 
+function replaceImages(text, urlStock) {
+    return text.replace(/<img[^>]*>/g, `<img width="100" height="100" src="${urlStock}" alt="Imagen de stock">`);
+}
+
 const showActivities = (token, principalDiv) => {
     const loadingDiv = document.createElement('div')
     loadingDiv.classList.add('loader-div');
@@ -589,8 +594,7 @@ const showActivities = (token, principalDiv) => {
                 <p><strong>Fecha de Creación:</strong> ${dateEstatusStr}</p>
                 <p><strong>Fecha de Máxima:</strong> ${maxDateStr}</p>
                 <p><strong>Descripcion:</strong> </p>
-                
-                ${activity?.descripcion}
+                ${replaceImages(activity?.descripcion,"https://pixsector.com/cache/517d8be6/av5c8336583e291842624.png")}
                 `;
 
             activityDiv.id = `activitydiv${index}`;
@@ -669,26 +673,28 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
 
         }
 
-        let coincidence = info.forums.map(act => act?.nombre_curso);
+        if(data.length > 0){
+            let coincidence = info.forums.map(act => act?.nombre_curso);
 
-        let coursesName = [...new Set(coincidence)];
+            let coursesName = [...new Set(coincidence)];
 
-        coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
+            coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
 
-        const selector = forumfilter(coursesName,"filtro-foros");
+            const selector = forumfilter(coursesName,"filtro-foros");
 
-        const courseSelector = document.createElement('div');
-        courseSelector.id = "filtros-actividades";
+            const courseSelector = document.createElement('div');
+            courseSelector.id = "filtros-actividades";
 
-        courseSelector.innerHTML = selector;
+            courseSelector.innerHTML = selector;
 
-        content.appendChild(courseSelector);
-        const activitiesFilterHTML = document.getElementById('filtro-foros');
+            content.appendChild(courseSelector);
+            const activitiesFilterHTML = document.getElementById('filtro-foros');
 
 
-        activitiesFilterHTML.addEventListener("change",()=>{
-            onFilterActivities(activitiesFilterHTML);
-        });   
+            activitiesFilterHTML.addEventListener("change",()=>{
+                onFilterActivities(activitiesFilterHTML);
+            }); 
+        }  
 
         data.forEach((forum,index) => {
             // div container each activity
@@ -752,7 +758,9 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
 
     allExamsAsync(token).then((data) => {
         if (data.length === 0) {
-            const noData = document.createElement('span');
+            const noData = document.createElement('h4');
+            noData.style.textAlign  = "center";
+            noData.style.width = "40vh";
             noData.textContent = "Estás al día";
             noData.style.color = "rgb(164, 164, 164)"
             content.appendChild(noData);
@@ -767,6 +775,7 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
 
         }
 
+       if(data.length > 0){
         let coincidence = info.exams.map(act => act?.nombre_curso);
 
         let coursesName = [...new Set(coincidence)];
@@ -786,6 +795,7 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
         activitiesFilterHTML.addEventListener("change",()=>{
             onFilterActivities(activitiesFilterHTML);
         });
+       }
 
         data.forEach((exam,index) => {
             // div container each activity
