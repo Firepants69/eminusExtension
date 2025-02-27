@@ -17,8 +17,8 @@ function scheduleAction(tabId) {
     }
     timeoutId = setTimeout(() => {
         realizarAccion(tabId);
-        timeoutId = null; 
-    }, 200); 
+        timeoutId = null;
+    }, 200);
 }
 
 function realizarAccion(tabId) {

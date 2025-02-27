@@ -363,6 +363,32 @@ const onClickExam = (courseId, examId) => {
     window.location.assign('https://eminus.uv.mx/eminus4/page/course/exam/student/preview');
 }
 
+const onNoData = (content) => {
+    const noData = document.createElement("h4");
+    const imgDiv = document.createElement("div");
+    noData.style.width = "40vh";
+    noData.style.textAlign = "center";
+    noData.textContent = "Estás al día";
+
+    noData.style.color = "rgb(166, 166, 166)";
+    const img = document.createElement("img");
+    img.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsmFA_67R61Q6m2XYYLzW_Y9XWoqSmUqujIw&s";
+    img.style.maxWidth = "15vh";
+    img.style.maxHeight = "15vh";
+    imgDiv.style.display = "flex";
+    imgDiv.style.flexDirection = "column";
+    imgDiv.style.alignItems = "center";
+    imgDiv.style.justifyContent = "center";
+
+    imgDiv.style.width = "40vh";
+    imgDiv.style.height = "73vh";
+
+    imgDiv.appendChild(noData);
+    imgDiv.appendChild(img)
+    content.appendChild(imgDiv);
+}
+
+
 
 // select the div 
 const init = (principalDiv, favs) => {
@@ -466,11 +492,8 @@ const showActivities = (token, principalDiv) => {
 
     getAllActivies(token).then((data) => {
         if (data.length === 0) {
-            const noData = document.createElement('span');
-            noData.textContent = "Estás al día";
-            noData.style.color = "rgb(164, 164, 164)"
             loading.remove();
-            activitiesDiv.appendChild(noData);
+            onNoData(activitiesDiv);
 
         } else {
             loadingDiv.remove();
@@ -594,7 +617,7 @@ const showActivities = (token, principalDiv) => {
                 <p><strong>Fecha de Creación:</strong> ${dateEstatusStr}</p>
                 <p><strong>Fecha de Máxima:</strong> ${maxDateStr}</p>
                 <p><strong>Descripcion:</strong> </p>
-                ${replaceImages(activity?.descripcion,"https://pixsector.com/cache/517d8be6/av5c8336583e291842624.png")}
+                ${replaceImages(activity?.descripcion, "https://pixsector.com/cache/517d8be6/av5c8336583e291842624.png")}
                 `;
 
             activityDiv.id = `activitydiv${index}`;
@@ -609,7 +632,7 @@ const showActivities = (token, principalDiv) => {
 
 }
 
-const forumfilter=(collection,id) =>{
+const forumfilter = (collection, id) => {
     const selector = `
     <div class="form-group">
         <label for="${id}" class="mt-3">Materias seleccionadas</label>
@@ -619,12 +642,12 @@ const forumfilter=(collection,id) =>{
     </div>
 `;
     return selector;
-} 
+}
 
 const onFilterActivities = (activitiesFilterHTML) => {
 
     const seletedItems = Array.from(activitiesFilterHTML.selectedOptions).map(item => item.value);
-    
+
     const matchingElements = Array.from(document.querySelectorAll('[id]')).filter(el =>
         el.id.includes('activitydiv')
     );
@@ -658,11 +681,7 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
 
     allForumsAsync(token).then((data) => {
         if (data.length === 0) {
-            const noData = document.createElement('span');
-            noData.textContent = "Estás al día";
-            noData.style.color = "rgb(164, 164, 164)"
-            content.appendChild(noData);
-
+            onNoData(content);
         } else {
             content.classList.add('principal');
             content.style.overflowX = "hidden";
@@ -673,14 +692,14 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
 
         }
 
-        if(data.length > 0){
+        if (data.length > 0) {
             let coincidence = info.forums.map(act => act?.nombre_curso);
 
             let coursesName = [...new Set(coincidence)];
 
             coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
 
-            const selector = forumfilter(coursesName,"filtro-foros");
+            const selector = forumfilter(coursesName, "filtro-foros");
 
             const courseSelector = document.createElement('div');
             courseSelector.id = "filtros-actividades";
@@ -691,12 +710,12 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
             const activitiesFilterHTML = document.getElementById('filtro-foros');
 
 
-            activitiesFilterHTML.addEventListener("change",()=>{
+            activitiesFilterHTML.addEventListener("change", () => {
                 onFilterActivities(activitiesFilterHTML);
-            }); 
-        }  
+            });
+        }
 
-        data.forEach((forum,index) => {
+        data.forEach((forum, index) => {
             // div container each activity
             const activityDiv = document.createElement('div');
             activityDiv.className = "CourseList d-flex p-3 mb-3 mat-card ";
@@ -733,7 +752,7 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
                 ${forum?.descripcion}
                 `;
             activityDiv.id = `activitydiv${index}`;
-            activityDiv.setAttribute("data-course",forum.nombre_curso);
+            activityDiv.setAttribute("data-course", forum.nombre_curso);
             infoDiv.insertBefore(titleForum, infoDiv.firstChild);
             activityDiv.appendChild(infoDiv)
             content.appendChild(activityDiv);
@@ -742,6 +761,7 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
 
 
 }
+
 
 const exams = (pendingActivities, pendingforums, pendingExams, token, principalDiv) => {
     console.log("hola desde examenes");
@@ -758,13 +778,7 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
 
     allExamsAsync(token).then((data) => {
         if (data.length === 0) {
-            const noData = document.createElement('h4');
-            noData.style.textAlign  = "center";
-            noData.style.width = "40vh";
-            noData.textContent = "Estás al día";
-            noData.style.color = "rgb(164, 164, 164)"
-            content.appendChild(noData);
-
+            onNoData(content);
         } else {
             content.classList.add('principal');
             content.style.overflowX = "hidden";
@@ -775,29 +789,29 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
 
         }
 
-       if(data.length > 0){
-        let coincidence = info.exams.map(act => act?.nombre_curso);
+        if (data.length > 0) {
+            let coincidence = info.exams.map(act => act?.nombre_curso);
 
-        let coursesName = [...new Set(coincidence)];
+            let coursesName = [...new Set(coincidence)];
 
-        coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
+            coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
 
-        const selector = forumfilter(coursesName,"filtro-examenes");
+            const selector = forumfilter(coursesName, "filtro-examenes");
 
-        const courseSelector = document.createElement('div');
-        courseSelector.id = "filtros-examenes";
+            const courseSelector = document.createElement('div');
+            courseSelector.id = "filtros-examenes";
 
-        courseSelector.innerHTML = selector;
+            courseSelector.innerHTML = selector;
 
-        content.appendChild(courseSelector);
-        const activitiesFilterHTML = document.getElementById('filtro-examenes');
+            content.appendChild(courseSelector);
+            const activitiesFilterHTML = document.getElementById('filtro-examenes');
 
-        activitiesFilterHTML.addEventListener("change",()=>{
-            onFilterActivities(activitiesFilterHTML);
-        });
-       }
+            activitiesFilterHTML.addEventListener("change", () => {
+                onFilterActivities(activitiesFilterHTML);
+            });
+        }
 
-        data.forEach((exam,index) => {
+        data.forEach((exam, index) => {
             // div container each activity
             const activityDiv = document.createElement('div');
             activityDiv.className = "CourseList d-flex p-3 mb-3 mat-card ";
@@ -837,7 +851,7 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
                 `;
 
             activityDiv.id = `activitydiv${index}`;
-            activityDiv.setAttribute("data-course",exam.nombre_curso);
+            activityDiv.setAttribute("data-course", exam.nombre_curso);
             infoDiv.insertBefore(titleExam, infoDiv.firstChild);
             activityDiv.appendChild(infoDiv);
 
@@ -867,8 +881,19 @@ const activities = (pendingActivities, pendingforums, pendingExams, principalDiv
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
-    if (message.action === "urlChange" && Object.keys(info).length === 0) {
+    let principal = document.getElementById('principalId');
+    if (principal) {
+        if (!document.body.contains(principal)) {
+            principal = null;
+        } else {
+            return;
+        }
+    }
+
+    if (message.action === "urlChange") {
         const token = localStorage.getItem('accessToken');
+
+
 
         var divs = document.getElementsByClassName('container p-0 ng-star-inserted');
         console.log(divs);
@@ -930,8 +955,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         console.log(info);
         console.log("La URL ha cambiado, realizando acción en la página...");
-
-
     }
 });
 
