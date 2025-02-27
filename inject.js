@@ -34,7 +34,7 @@ const htmlNavbar =
     }
 </style>
 
-<div class="bg-white container-fluid pb-1 pt-4 rounded-pill shadow-sm">
+<div class="bg-white container-fluid d-flex pb-1 pt-4 rounded-pill shadow-sm">
     <ul class="navbar-nav">
         <li id="tareas-pendientes" class="navbar-item border-select">
             <i class="mx-1 material-icons">assignment</i>
@@ -430,6 +430,14 @@ const init = (principalDiv, favs) => {
                 color:#EE6666;
             }
 
+            .title-activity-sended{
+               
+                color: green;
+            }
+            .title-activity-sended:hover {
+                color:#005500;
+            }
+
             .loader {
             width: 50px;
             padding: 8px;
@@ -503,6 +511,22 @@ const showActivities = (token, principalDiv) => {
             activitiesDiv.style.minHeight = "73vh";
             activitiesDiv.style.maxHeight = "73vh";
 
+            activitiesDiv.style.scrollbarWidth = "thin";
+            activitiesDiv.style.msOverflowStyle = "auto";
+            activitiesDiv.style.cssText += `
+              ::-webkit-scrollbar {
+                width: 5px; /* Ajusta el ancho del scrollbar */
+              }
+              ::-webkit-scrollbar-thumb {
+                background-color: rgba(0, 0, 0, 0.5); /* Color del "thumb" (parte deslizante del scrollbar) */
+                border-radius: 10px; /* Redondea los bordes del scrollbar */
+              }
+              ::-webkit-scrollbar-track {
+                background-color: #f1f1f1; /* Fondo del track (la parte de donde se desliza el scrollbar) */
+              }
+            `;
+
+
             principalDiv.appendChild(activitiesDiv);
 
         }
@@ -517,16 +541,18 @@ const showActivities = (token, principalDiv) => {
         coursesName = coursesName.map((course) => `<option value="${course}" selected>${course}</option>`);
 
         const selector = `
-        <div class="form-group">
-            <div class="d-flex flex-row justify-content-start align-items-center"> 
-                <label class="mx-2" for="mostrar-con-entrega">Mostrar Con entrega</label>
-                <input class="mx-2" type="checkbox" role="switch" id="mostrar-con-entrega" checked>
+        <div class="form-group" style="display: flex; flex-direction: column; align-items: flex-start;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label for="mostrar-con-entrega" style="margin: 0;">Mostrar Con entrega</label>
+                <input type="checkbox" role="switch" id="mostrar-con-entrega" checked>
             </div>
-            <label for="filtro-actividades" class="mt-3">Materias seleccionadas</label>
-            <select multiple class="form-control" id="filtro-actividades">
+            <label for="filtro-actividades" style="margin-top: 15px;">Materias seleccionadas</label>
+            <select multiple id="filtro-actividades" style="width: 37vh; max-width: 100%; padding: 5px; margin-top: 5px;">
                 ${coursesName.join("")}
             </select>
         </div>
+
+
     `;
 
 
@@ -601,6 +627,7 @@ const showActivities = (token, principalDiv) => {
 
             //alert 
             difDays <= 2 ? titleActivity.classList.add('title-activity-alert') : titleActivity.classList.add('title-activity');
+            activity.estadoEntrega && (titleActivity.className = "title-activity-sended");
 
             titleActivity.addEventListener('click', () =>
                 onClickActivity(activity?.idCurso, activity?.idActividad));
@@ -636,7 +663,7 @@ const forumfilter = (collection, id) => {
     const selector = `
     <div class="form-group">
         <label for="${id}" class="mt-3">Materias seleccionadas</label>
-        <select multiple class="form-control" id="${id}">
+        <select style="width:37vh" multiple class="form-control" id="${id}">
             ${collection.join("")}
         </select>
     </div>
@@ -953,8 +980,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         })
 
 
-        console.log(info);
-        console.log("La URL ha cambiado, realizando acción en la página...");
     }
 });
 
