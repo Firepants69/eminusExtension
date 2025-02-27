@@ -378,7 +378,7 @@ const onNoData = (content) => {
     imgDiv.style.display = "flex";
     imgDiv.style.flexDirection = "column";
     imgDiv.style.alignItems = "center";
-    imgDiv.style.justifyContent = "center";
+    imgDiv.style.justifyContent = "start";
 
     imgDiv.style.width = "40vh";
     imgDiv.style.height = "73vh";
