@@ -905,6 +905,92 @@ const activities = (pendingActivities, pendingforums, pendingExams, principalDiv
     showActivities(token, principalDiv);
 }
 
+const setMenu = (token)=>{
+    var divs = document.getElementsByClassName('container p-0 ng-star-inserted');
+    console.log(divs);
+
+    var favs = divs[0];
+    favs.style.display = 'flex';
+    // create a new element to show activities
+    var principalDiv = document.createElement('div');
+    principalDiv.id = "principalId";
+    principalDiv.style.maxWidth = '40vh';
+    let navbar = document.createElement('nav');
+    navbar.style.backgroundColor = "white";
+    navbar.className = 'navbar navbar-expand-lg navbar-light bg-light rounded-pill';
+    navbar.style.maxWidth = '40vh';
+    navbar.style.minWidth = '40vh';
+
+    navbar.innerHTML = htmlNavbar;
+
+    const title = document.createElement('span')
+    title.textContent = "Actividades pendientes"
+    title.style.fontSize = "1.42857rem";
+    title.style.paddingLeft = "8px";
+    title.style.fontWeight = "600";
+    title.style.marginBottom = "15px";
+    
+    const resetButton = document.createElement("button");
+    
+    resetButton.addEventListener("click",()=>{
+        const principalDiv = document.getElementById("principalId");
+        principalDiv.remove();
+        info = {};
+        setMenu(token);
+    });
+    const refreshIcon = document.createElement("div");
+    refreshIcon.style.padding = "0px";
+    refreshIcon.style.display = "flex";
+    refreshIcon.style.alignItems = "center";
+    refreshIcon.style.justifyContent = "center";
+    refreshIcon.innerHTML = `<i class="material-icons"  style="color: green;">refresh</i>`;
+    
+    const titleDiv = document.createElement("div");
+    titleDiv.style.display = "flex";
+    titleDiv.style.alignItems = "center"; 
+    titleDiv.style.gap = "8px"; 
+    resetButton.style.border = "none";
+    resetButton.style.outline = "none";
+    resetButton.style.background = "transparent";
+    title.style.margin = "0";
+    
+    resetButton.appendChild(refreshIcon);
+        
+    titleDiv.appendChild(title);
+    titleDiv.appendChild(resetButton);
+    principalDiv.appendChild(titleDiv);
+    
+    principalDiv.appendChild(navbar);
+
+    init(principalDiv, favs);
+
+    allExamsAsync(token)
+        .then(exams => {
+            document.getElementById('numero-examenes')
+                .textContent = exams.length;
+        });
+
+    allForumsAsync(token)
+        .then(forums => {
+            document.getElementById('numero-foros')
+                .textContent = forums.length;
+        });
+
+    let pendingforums = document.getElementById('foros-pendientes');
+    let pendingExams = document.getElementById('examenes-pendientes');
+    let pendingActivities = document.getElementById('tareas-pendientes');
+
+    pendingforums.addEventListener('click', () => {
+        forums(pendingActivities, pendingforums, pendingExams, token, principalDiv);
+    });
+
+    pendingExams.addEventListener('click', () => {
+        exams(pendingActivities, pendingforums, pendingExams, token, principalDiv);
+    });
+    pendingActivities.addEventListener('click', () => {
+        activities(pendingActivities, pendingforums, pendingExams, principalDiv, token);
+    })
+}
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
@@ -919,67 +1005,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     if (message.action === "urlChange") {
         const token = localStorage.getItem('accessToken');
-
-
-
-        var divs = document.getElementsByClassName('container p-0 ng-star-inserted');
-        console.log(divs);
-
-        var favs = divs[0];
-        favs.style.display = 'flex';
-        // create a new element to show activities
-        var principalDiv = document.createElement('div');
-        principalDiv.id = "principalId";
-        principalDiv.style.maxWidth = '40vh';
-        let navbar = document.createElement('nav');
-        navbar.style.backgroundColor = "white";
-        navbar.className = 'navbar navbar-expand-lg navbar-light bg-light rounded-pill';
-        navbar.style.maxWidth = '40vh';
-        navbar.style.minWidth = '40vh';
-
-        navbar.innerHTML = htmlNavbar;
-
-        const title = document.createElement('span')
-        title.textContent = "Actividades pendientes"
-        title.style.fontSize = "1.42857rem";
-        title.style.paddingLeft = "8px";
-        title.style.fontWeight = "600";
-        title.style.marginBottom = "15px"
-
-        principalDiv.appendChild(title);
-
-        principalDiv.appendChild(navbar);
-
-        init(principalDiv, favs);
-
-        allExamsAsync(token)
-            .then(exams => {
-                document.getElementById('numero-examenes')
-                    .textContent = exams.length;
-            });
-
-        allForumsAsync(token)
-            .then(forums => {
-                document.getElementById('numero-foros')
-                    .textContent = forums.length;
-            });
-
-        let pendingforums = document.getElementById('foros-pendientes');
-        let pendingExams = document.getElementById('examenes-pendientes');
-        let pendingActivities = document.getElementById('tareas-pendientes');
-
-        pendingforums.addEventListener('click', () => {
-            forums(pendingActivities, pendingforums, pendingExams, token, principalDiv);
-        });
-
-        pendingExams.addEventListener('click', () => {
-            exams(pendingActivities, pendingforums, pendingExams, token, principalDiv);
-        });
-        pendingActivities.addEventListener('click', () => {
-            activities(pendingActivities, pendingforums, pendingExams, principalDiv, token);
-        })
-
-
+        setMenu(token);
     }
 });
+
+
+
 
