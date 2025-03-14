@@ -69,7 +69,7 @@ const timmer= ( p ,target )=>{
 
     { days, hours, minutes, seconds };
 
-    p.innerHTML = `Terminará en <b>${days}</b> dias <b>${hours}</b> horas, <b>${minutes}</b> minutos, <b>${seconds}</b> segundos`
+    p.innerHTML = `Terminará en <span style="color: gray; font-weight: 500;">${days}</span> dias <span style="color: gray; font-weight: 500;">${hours}</span> horas, <span style="color: gray; font-weight: 500;">${minutes}</span> minutos, <span style="color: gray; font-weight: 500;">${seconds}</span> segundos`
 }
 
 const getAsyncCourses = async (token) => {
