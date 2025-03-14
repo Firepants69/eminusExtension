@@ -55,6 +55,23 @@ const htmlNavbar =
 
 var info = {};
 
+const timmer= ( p ,target )=>{
+    const now = new Date();
+    const difference = target - now;
+
+    if (difference <= 0) {
+        return
+    }
+    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+    { days, hours, minutes, seconds };
+
+    p.innerHTML = `Terminará en <b>${days}</b> dias <b>${hours}</b> horas, <b>${minutes}</b> minutos, <b>${seconds}</b> segundos`
+}
+
 const getAsyncCourses = async (token) => {
     const url = 'https://eminus.uv.mx/eminusapi/api/Cursos/getAllCourses';
 
@@ -415,7 +432,7 @@ const init = (principalDiv, favs) => {
             }
             .
             .title-activity{
-               
+                max-width: 90%;
                 color: black;
             }
             .title-activity:hover {
@@ -423,7 +440,7 @@ const init = (principalDiv, favs) => {
             }
 
             .title-activity-alert{
-               
+                max-width: 90%;
                 color: red;
             }
             .title-activity-alert:hover {
@@ -431,7 +448,7 @@ const init = (principalDiv, favs) => {
             }
 
             .title-activity-sended{
-               
+                max-width: 90%;    
                 color: green;
             }
             .title-activity-sended:hover {
@@ -510,7 +527,7 @@ const showActivities = (token, principalDiv) => {
             activitiesDiv.style.overflowY = "auto";
             activitiesDiv.style.minHeight = "73vh";
             activitiesDiv.style.maxHeight = "73vh";
-
+            activitiesDiv.style.maxWidth = "40vh";
             activitiesDiv.style.scrollbarWidth = "thin";
             activitiesDiv.style.msOverflowStyle = "auto";
             activitiesDiv.style.cssText += `
@@ -620,6 +637,7 @@ const showActivities = (token, principalDiv) => {
             titleActivity.style.fontWeight = "bold";
             titleActivity.style.fontSize = "1.45rem";
             titleActivity.style.cursor = "pointer";
+            titleActivity.style.maxWidth = "90%";
 
             const oneDay = 24 * 60 * 60 * 1000;
             let difDays = Math.round(Math.abs((maxDate - new Date()) / oneDay));
@@ -631,7 +649,19 @@ const showActivities = (token, principalDiv) => {
 
             titleActivity.addEventListener('click', () =>
                 onClickActivity(activity?.idCurso, activity?.idActividad));
+            const divCounter = document.createElement("div");
+            
+            divCounter.style.display ="flex";
+            divCounter.style.flexDirection="row";
 
+            const counter = document.createElement("p");
+            setInterval(() => {
+                timmer(counter,maxDate);
+            }, 1000);
+            const img = document.createElement("img");
+            img.src = "https://media.tenor.com/K3j9pwWlME0AAAAj/fire-flame.gif";
+            img.width =20
+            img.height =20
             infoDiv.innerHTML = `
                 <p><strong>Días para que termine:</strong> ${difDays}</p>
                 <p><strong>Curso:</strong> ${activity.course_title}</p>
@@ -647,9 +677,13 @@ const showActivities = (token, principalDiv) => {
                 ${replaceImages(activity?.descripcion, "https://pixsector.com/cache/517d8be6/av5c8336583e291842624.png")}
                 `;
 
+            divCounter.appendChild(img);
+            divCounter.appendChild(counter);
+
             activityDiv.id = `activitydiv${index}`;
             activityDiv.setAttribute('data-course', activity.course_title);
             activityDiv.setAttribute('send-status', activity.estadoEntrega);
+            infoDiv.insertBefore(divCounter, infoDiv.firstChild);
             infoDiv.insertBefore(titleActivity, infoDiv.firstChild);
             activityDiv.appendChild(infoDiv)
             activitiesDiv.appendChild(activityDiv);
@@ -748,16 +782,18 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
             activityDiv.className = "CourseList d-flex p-3 mb-3 mat-card ";
             activityDiv.style.borderRadius = "10px"
             const infoDiv = document.createElement('div')
-            infoDiv.className = "d-flex flex-column"
             const maxDate = new Date(forum?.fechaTermino)
             const maxDateStr = maxDate.toLocaleString(); // to str
 
             // Create the div content
             const titleForum = document.createElement('p');
+            titleForum.style.overflowWrap = "break-word";
+            
             titleForum.textContent = forum?.titulo
             titleForum.style.fontWeight = "bold";
             titleForum.style.fontSize = "1.45rem";
             titleForum.style.cursor = "pointer";
+            titleForum.style.maxWidth = "90%";
 
             titleForum.addEventListener('click', () =>
                 onClickForum(forum?.idCurso, forum?.idForo));
@@ -766,8 +802,25 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
             let difDays = Math.round(Math.abs((maxDate - new Date()) / oneDay));
             console.log(difDays);
 
-            //alert 
+            
             difDays <= 2 ? titleForum.classList.add('title-activity-alert') : titleForum.classList.add('title-activity');
+            
+            const divCounter = document.createElement("div");
+            
+            divCounter.style.display ="flex";
+            divCounter.style.flexDirection="row";
+            const img = document.createElement("img");
+            img.src = "https://media.tenor.com/K3j9pwWlME0AAAAj/fire-flame.gif";
+            img.width =20
+            img.height =20
+            
+            const counter = document.createElement("p");
+            setInterval(() => {
+                timmer(counter,maxDate);
+            }, 1000);
+
+            divCounter.appendChild(img);
+            divCounter.appendChild(counter);
 
             infoDiv.innerHTML = `
                 <p><strong>Días para que termine:</strong> ${difDays}</p>
@@ -775,11 +828,11 @@ const forums = (pendingActivities, pendingforums, pendingExams, token, principal
                 
                 <p><strong>Fecha de Máxima:</strong> ${maxDateStr}</p>
                 <p><strong>Descripcion:</strong> </p>
-                
                 ${forum?.descripcion}
                 `;
             activityDiv.id = `activitydiv${index}`;
             activityDiv.setAttribute("data-course", forum.nombre_curso);
+            infoDiv.insertBefore(divCounter, infoDiv.firstChild);
             infoDiv.insertBefore(titleForum, infoDiv.firstChild);
             activityDiv.appendChild(infoDiv)
             content.appendChild(activityDiv);
@@ -854,6 +907,7 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
             titleExam.style.fontWeight = "bold";
             titleExam.style.fontSize = "1.45rem";
             titleExam.style.cursor = "pointer";
+            titleExam.style.maxWidth = "90%";
 
             titleExam.addEventListener('click', () =>
                 onClickExam(exam?.idCurso, exam?.idExamen));
@@ -864,6 +918,24 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
 
             //alert 
             difDays <= 2 ? titleExam.classList.add('title-activity-alert') : titleExam.classList.add('title-activity');
+            
+            const divCounter = document.createElement("div");
+            
+            divCounter.style.display ="flex";
+            divCounter.style.flexDirection="row";
+            const img = document.createElement("img");
+            img.src = "https://media.tenor.com/K3j9pwWlME0AAAAj/fire-flame.gif";
+            img.width =20
+            img.height =20
+            
+            const counter = document.createElement("p");
+            setInterval(() => {
+                timmer(counter,maxDate);
+            }, 1000);
+            
+            divCounter.appendChild(img);
+            divCounter.appendChild(counter);
+
 
             infoDiv.innerHTML = `
                 <p><strong>Días para que termine:</strong> ${difDays}</p>
@@ -879,10 +951,9 @@ const exams = (pendingActivities, pendingforums, pendingExams, token, principalD
 
             activityDiv.id = `activitydiv${index}`;
             activityDiv.setAttribute("data-course", exam.nombre_curso);
+            infoDiv.insertBefore(divCounter,infoDiv.firstChild);
             infoDiv.insertBefore(titleExam, infoDiv.firstChild);
             activityDiv.appendChild(infoDiv);
-
-
             content.appendChild(activityDiv);
         });
     })
